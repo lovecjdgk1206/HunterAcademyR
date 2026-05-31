@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>USER NOTE MAKER · RADIX ACADEMY</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0f13;
+    --surface: #15171d;
+    --surface2: #1c1f28;
+    --border: #2a2d38;
+    --border-light: #353848;
+    --text: #e8e9f0;
+    --text-muted: #7a7e95;
+    --text-dim: #4a4e61;
+    --accent: #8b9cf4;
+    --accent2: #c4a8f0;
+    --accent3: #7ec8b8;
+    --tag-bg: #1e2130;
+    --tag-active: #2a2f4a;
+    --tag-border: #303450;
+    --tag-active-border: #6070d0;
+    --lilac: #b8a8e8;
+    --gold: #c8a96e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    position: relative;
+    padding: 60px 0 40px;
+    text-align: center;
+    border-bottom: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 0%, rgba(139,156,244,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.25em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(28px, 5vw, 48px);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+  .header-title em {
+    font-style: italic;
+    color: var(--accent2);
+  }
+  .header-sub {
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* TAB */
+  .tab-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 32px 20px 0;
+  }
+  .tab-btn {
+    padding: 10px 28px;
+    border-radius: 24px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    font-weight: 500;
+  }
+  .tab-btn:not(.active):hover {
+    border-color: var(--border-light);
+    color: var(--text);
+  }
+
+  /* MAIN LAYOUT */
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 20px 100px;
+  }
+
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* SECTION */
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+  }
+  .section-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  .section-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text);
+  }
+  .section-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    background: rgba(139,156,244,0.1);
+    border: 1px solid rgba(139,156,244,0.2);
+    border-radius: 20px;
+    padding: 3px 10px;
+    text-transform: uppercase;
+  }
+  .section-badge.optional { color: var(--text-muted); background: rgba(122,126,149,0.08); border-color: var(--border); }
+
+  /* TOGGLE (이방인/현지인 내부 섹션) */
+  .collapsible-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+  }
+  .collapsible-arrow {
+    font-size: 11px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+  }
+  .collapsible-head.open .collapsible-arrow { transform: rotate(180deg); }
+  .collapsible-body { display: none; margin-top: 16px; }
+  .collapsible-body.open { display: block; }
+
+  /* FIELDS */
+  .field-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .field-grid.full { grid-template-columns: 1fr; }
+  @media (max-width: 560px) {
+    .field-grid { grid-template-columns: 1fr; }
+    .field-grid.three { grid-template-columns: 1fr 1fr; }
+  }
+
+  .field-label {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+  .field-label .req {
+    color: var(--accent);
+    margin-left: 3px;
+  }
+  .field-label .opt { color: var(--text-dim); margin-left: 3px; }
+
+  input[type=text], select, textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    padding: 10px 14px;
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  input[type=text]:focus, select:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+  select option { background: var(--surface2); }
+  textarea { min-height: 80px; }
+
+  /* TAG SELECTOR */
+  .tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .tag {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--tag-border);
+    background: var(--tag-bg);
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .tag:hover { border-color: var(--border-light); color: var(--text); }
+  .tag.active {
+    background: var(--tag-active);
+    border-color: var(--tag-active-border);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .tag-custom-btn {
+    padding: 7px 16px;
+    border-radius: 20px;
+    border: 1px dashed var(--border-light);
+    background: transparent;
+    color: var(--accent2);
+    font-size: 13px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .tag-custom-btn:hover { border-color: var(--accent2); }
+  .custom-input-wrap {
+    display: none;
+    margin-top: 10px;
+  }
+  .custom-input-wrap.open { display: flex; gap: 8px; }
+  .custom-input-wrap input {
+    flex: 1;
+    min-width: 0;
+  }
+  .custom-confirm-btn {
+    padding: 8px 16px;
+    background: var(--tag-active);
+    border: 1px solid var(--tag-active-border);
+    border-radius: 8px;
+    color: var(--accent);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .custom-confirm-btn:hover { background: rgba(96,112,208,0.3); }
+
+  /* ABILITY GRID */
+  .ability-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  @media (max-width: 560px) { .ability-grid { grid-template-columns: repeat(3, 1fr); } }
+  .ability-tag {
+    padding: 9px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--tag-border);
+    background: var(--tag-bg);
+    color: var(--text-muted);
+    font-size: 13px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .ability-tag:hover { border-color: var(--border-light); color: var(--text); }
+  .ability-tag.active {
+    background: var(--tag-active);
+    border-color: var(--tag-active-border);
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  /* PLAY GUIDE */
+  .guide-row { margin-bottom: 24px; }
+  .guide-label {
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 6px;
+    font-weight: 400;
+  }
+  .guide-desc {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .radio-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .radio-tag {
+    padding: 8px 20px;
+    border-radius: 20px;
+    border: 1px solid var(--tag-border);
+    background: var(--tag-bg);
+    color: var(--text-muted);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .radio-tag.active {
+    background: var(--tag-active);
+    border-color: var(--tag-active-border);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .radio-tag.default-active {
+    background: var(--surface2);
+    border-color: var(--border-light);
+    color: var(--text);
+    font-weight: 500;
+  }
+  .focus-select { display: none; margin-top: 12px; }
+  .focus-select.open { display: block; }
+  .focus-select-label { font-size: 12px; color: var(--text-muted); margin-bottom: 8px; }
+  .focus-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .focus-tag {
+    padding: 6px 14px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    color: var(--text-muted);
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .focus-tag.active {
+    border-color: var(--accent2);
+    background: rgba(196,168,240,0.1);
+    color: var(--accent2);
+  }
+
+  /* TOGGLE SWITCH */
+  .toggle-item {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+  }
+  .toggle-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .toggle-item:first-child { padding-top: 0; }
+  .toggle-info { flex: 1; }
+  .toggle-name { font-size: 14px; color: var(--text); margin-bottom: 4px; font-weight: 400; }
+  .toggle-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .toggle-switch {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    inset: 0;
+    background: var(--surface2);
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    transition: all 0.2s;
+  }
+  .toggle-slider::before {
+    content: '';
+    position: absolute;
+    width: 16px; height: 16px;
+    left: 3px; top: 3px;
+    background: var(--text-muted);
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-slider {
+    background: rgba(139,156,244,0.2);
+    border-color: var(--accent);
+  }
+  .toggle-switch input:checked + .toggle-slider::before {
+    transform: translateX(20px);
+    background: var(--accent);
+  }
+
+  /* GENERATE BUTTON */
+  .generate-wrap {
+    text-align: center;
+    padding: 12px 0 0;
+  }
+  .generate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+    border: none;
+    border-radius: 30px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+    box-shadow: 0 4px 24px rgba(139,156,244,0.25);
+  }
+  .generate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 32px rgba(139,156,244,0.35);
+  }
+
+  /* OUTPUT */
+  .output-section {
+    display: none;
+    margin-top: 24px;
+  }
+  .output-section.open { display: block; }
+  .output-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .output-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent3);
+  }
+  .copy-btn {
+    padding: 6px 16px;
+    border-radius: 16px;
+    border: 1px solid var(--accent3);
+    background: rgba(126,200,184,0.08);
+    color: var(--accent3);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .copy-btn:hover { background: rgba(126,200,184,0.15); }
+  .output-area {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    color: var(--text);
+    white-space: pre-wrap;
+    min-height: 120px;
+    outline: none;
+  }
+
+  /* DIVIDER */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 24px 0;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
+
+  /* SCROLL */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border-light); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-eyebrow">RADIX ACADEMY · USER NOTE MAKER</div>
+  <h1 class="header-title">유저노트 <em>도우미</em></h1>
+  <p class="header-sub">당신의 캐릭터를 설정하세요</p>
+</header>
+
+<div class="tab-wrap">
+  <button class="tab-btn active" onclick="switchTab('stranger', this)">환생 · 빙의 · 제2의 삶</button>
+  <button class="tab-btn" onclick="switchTab('local', this)">각성자 (현생)</button>
+</div>
+
+<div class="container">
+
+  <!-- ===================== 환생 · 빙의 탭 ===================== -->
+  <div id="tab-stranger" class="tab-content active">
+
+    <!-- 기본 정보 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">USER 정보</span>
+        <span class="section-badge">필수</span>
+      </div>
+      <div class="field-grid">
+        <div>
+          <div class="field-label">이름 <span class="req">*</span></div>
+          <input type="text" id="s-name" placeholder="캐릭터 이름">
+        </div>
+        <div>
+          <div class="field-label">성별 <span class="req">*</span></div>
+          <select id="s-gender">
+            <option value="">선택</option>
+            <option>여성</option>
+            <option>남성</option>
+            <option>성별 불명</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div>
+          <div class="field-label">나이 <span class="req">*</span></div>
+          <input type="text" id="s-age" placeholder="예: 20살 (권장 입학 연령 18~24세)">
+        </div>
+        <div>
+          <div class="field-label">외형 <span class="req">*</span></div>
+          <input type="text" id="s-appearance" placeholder="예: 흑발 / 청안 / 178cm / 슬림한 체형 / 단정한 인상">
+        </div>
+      </div>
+      <div class="field-grid">
+        <div>
+          <div class="field-label">기숙사 배정 <span class="opt">(선택)</span></div>
+          <select id="s-dorm">
+            <option value="">질문지로 결정</option>
+            <option value="아도르 (ARDOR) — 전투·불꽃">아도르 (ARDOR) — 전투·불꽃</option>
+            <option value="베루스 (VERUS) — 지식·서책">베루스 (VERUS) — 지식·서책</option>
+            <option value="칼릭스 (CALIX) — 방어·방패">칼릭스 (CALIX) — 방어·방패</option>
+            <option value="녹티스 (NOCTIS) — 희귀·초승달">녹티스 (NOCTIS) — 희귀·초승달</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">학년 <span class="opt">(선택)</span></div>
+          <select id="s-year">
+            <option value="">선택</option>
+            <option>1학년</option>
+            <option>2학년</option>
+            <option>3학년</option>
+            <option>4학년</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 성격 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">성격</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="tag-group" id="s-personality-tags">
+          <span class="tag" onclick="toggleTag(this,'s-personality')">차분한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">침착한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">이성적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">냉정한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">신중한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">다정한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">상냥한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">온화한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">배려심 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">공감 잘하는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">밝은</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">낙천적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">활발한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">장난기 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">호기심 많은</span>
+
+          <span class="tag" onclick="toggleTag(this,'s-personality')">당돌한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">대담한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">책임감 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">독립적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">경쟁심 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">조용한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">내성적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">무뚝뚝한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">고집 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">눈치 빠른</span>
+        </div>
+        <button class="tag-custom-btn" onclick="openCustom('s-personality-custom')">+ 기타 직접 추가</button>
+        <div class="custom-input-wrap" id="s-personality-custom">
+          <input type="text" placeholder="직접 입력" id="s-personality-custom-input">
+          <button class="custom-confirm-btn" onclick="addCustomTag('s-personality-custom-input','s-personality-tags','s-personality')">추가</button>
+        </div>
+        <div style="height:12px"></div>
+        <textarea id="s-personality-free" placeholder="자유롭게 입력하세요" rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- 말투 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">말투</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="tag-group" id="s-speech-tags">
+          <span class="tag" onclick="toggleTag(this,'s-speech')">존댓말</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">반존대</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">반말</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">또박또박한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">정중한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">직설적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">단답형</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">나긋한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">느릿한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">말수가 적은</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">친근한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">장난스러운</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">능글맞은</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">무심한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">말끝을 흐리는</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">돌려 말하는</span>
+        </div>
+        <button class="tag-custom-btn" onclick="openCustom('s-speech-custom')">+ 기타 직접 추가</button>
+        <div class="custom-input-wrap" id="s-speech-custom">
+          <input type="text" placeholder="직접 입력" id="s-speech-custom-input">
+          <button class="custom-confirm-btn" onclick="addCustomTag('s-speech-custom-input','s-speech-tags','s-speech')">추가</button>
+        </div>
+        <div style="height:12px"></div>
+        <textarea id="s-speech-free" placeholder="자유롭게 입력하세요" rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- 분위기 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">분위기</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="tag-group" id="l-personality-tags">
+          <span class="tag" onclick="toggleTag(this,'l-personality')">청량한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">햇살 같은</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">포근한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">따뜻한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">신비로운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">몽환적인</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">비밀스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">도회적인</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">세련된</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">고급스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">쿨한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">고독한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">거리감 있는</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">강인한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">어른스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">카리스마 있는</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">귀여운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">사랑스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">장난스러운</span>
+        </div>
+        <button class="tag-custom-btn" onclick="openCustom('l-personality-custom')">+ 기타 직접 추가</button>
+        <div class="custom-input-wrap" id="l-personality-custom">
+          <input type="text" placeholder="직접 입력" id="l-personality-custom-input">
+          <button class="custom-confirm-btn" onclick="addCustomTag('l-personality-custom-input','l-personality-tags','l-personality')">추가</button>
+        </div>
+        <div style="height:12px"></div>
+        <textarea id="l-personality-free" placeholder="자유롭게 입력하세요" rows="2"></textarea>
+      </div>
+    </div>
+
+
+    <!-- 배경 (이방인 전용) -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">이전 삶 배경</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="field-grid">
+          <div>
+            <div class="field-label">이전 세계 / 시대 <span class="req">*</span></div>
+            <input type="text" id="s-world" placeholder="예: 현대 한국, 2026년">
+          </div>
+          <div>
+            <div class="field-label">이전 생활 <span class="req">*</span></div>
+            <input type="text" id="s-job" placeholder="예: 대학생, 직장인">
+          </div>
+        </div>
+        <div class="field-grid full" style="margin-top:8px">
+          <div>
+            <div class="field-label">세계 이해도 <span class="opt">(선택)</span></div>
+            <div class="tag-group" id="s-awareness-tags">
+              <span class="tag" onclick="toggleTagSingle(this,'s-awareness')">정보 없음</span>
+              <span class="tag" onclick="toggleTagSingle(this,'s-awareness')">일부 정보 인지</span>
+              <span class="tag" onclick="toggleTagSingle(this,'s-awareness')">원작 작가</span>
+              <span class="tag" onclick="toggleTagSingle(this,'s-awareness')">원작 독자</span>
+              <span class="tag" onclick="toggleTagSingle(this,'s-awareness')">정보 일부</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="field-label">마지막 기억 <span class="opt">(선택)</span></div>
+          <textarea id="s-lastmemory" placeholder="예: 잠들기 전 소설을 읽다 눈을 떴다" rows="2"></textarea>
+        </div>
+        <div style="margin-top:12px">
+          <div class="field-label">보유 경험 · 능력 · 특기 <span class="opt">(선택)</span></div>
+          <input type="text" id="s-skill" placeholder="예: 의학 지식, 날카로운 관찰력">
+        </div>
+      </div>
+    </div>
+
+    <!-- 능력 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">능력 선택</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">이 세계에서 각성할 능력을 선택하세요. 복수 선택 가능합니다. (선택과 플레이 흐름을 참고하여 능력 결정 및 자동 각성됩니다)</p>
+        <div class="ability-grid" id="s-ability-tags">
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">검술형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">원소형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">강화형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">감각형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">지원형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">정신계</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">소환형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">특수계</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">AI 결정</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">없음</span>
+        </div>
+        <div style="margin-top:12px">
+          <div class="field-label">기타 능력 설명 <span class="opt">(선택)</span></div>
+          <textarea id="s-ability-free" placeholder="예: 빙결 계열 희망, 근접 전투 특화" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 플레이 가이드 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">플레이 가이드</span>
+        <span class="section-badge optional">선택</span>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">플레이 방향과 편의 기능을 설정하세요. 모두 선택 사항입니다.</p>
+
+      <div class="guide-row">
+        <div class="guide-label">플레이 방향</div>
+        <div class="radio-group">
+          <span class="radio-tag default-active" onclick="selectRadio(this,'s-dir','none')" data-val="none">선택 안 함</span>
+          <span class="radio-tag" onclick="selectRadio(this,'s-dir','multi')" data-val="multi">멀티 루트</span>
+          <span class="radio-tag" onclick="selectRadio(this,'s-dir','focus')" data-val="focus">1인 집중</span>
+        </div>
+        <div class="focus-select" id="s-focus-select">
+          <div class="focus-select-label" style="margin-top:12px">집중할 캐릭터를 선택하세요</div>
+          <div class="focus-grid">
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">세이른</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">케일런</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">제브</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">테론</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">알드릭</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">리벤</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">이드리스</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">키안</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">카이우스</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">사엘</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">콜린</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">실비</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">컬윈</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">이든</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-row">
+        <div class="guide-label">이미지 모드</div>
+        <div class="guide-desc">19 상황 시 출력되는 H씬 종류를 강하게 제한합니다.</div>
+        <div class="radio-group">
+          <span class="radio-tag default-active" onclick="selectRadio(this,'s-img','none')" data-val="none">선택 안 함</span>
+          <span class="radio-tag" onclick="selectRadio(this,'s-img','HL')" data-val="HL">HL</span>
+          <span class="radio-tag" onclick="selectRadio(this,'s-img','BL')" data-val="BL">BL</span>
+        </div>
+      </div>
+
+      <div class="guide-label" style="margin-bottom:12px;">편의 기능</div>
+      <div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">사칭 금지 강화</div>
+            <div class="toggle-desc">GM이 USER의 대사·심리·행동을 대신 쓰지 않도록 강하게 제한합니다.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="s-tog1" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">묘사 강화</div>
+            <div class="toggle-desc">감각 묘사 밀도를 높이고, AI 특유의 문체와 감정 단어 직접 서술을 차단합니다.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="s-tog2" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">반복 차단 강화</div>
+            <div class="toggle-desc">이전과 같은 묘사·문장 구조·전개의 반복을 막고, 매 턴 새롭게 서술하도록 합니다.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="s-tog3" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="generate-wrap">
+      <button class="generate-btn" onclick="generateNote('stranger')">
+        <span>유저노트 만들기</span>
+        <span>→</span>
+      </button>
+    </div>
+
+    <div class="output-section" id="s-output">
+      <div class="output-head">
+        <span class="output-title">완성된 유저노트</span>
+        <button class="copy-btn" onclick="copyOutput('s-output-area')">복사하기</button>
+      </div>
+      <div class="output-area" id="s-output-area" contenteditable="true"></div>
+    </div>
+
+  </div><!-- /tab-stranger -->
+
+  <!-- ===================== 현지인 탭 ===================== -->
+  <div id="tab-local" class="tab-content">
+
+    <!-- 기본 정보 -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">USER 정보</span>
+        <span class="section-badge">필수</span>
+      </div>
+      <div class="field-grid">
+        <div>
+          <div class="field-label">이름 <span class="req">*</span></div>
+          <input type="text" id="l-name" placeholder="캐릭터 이름">
+        </div>
+        <div>
+          <div class="field-label">성별 <span class="req">*</span></div>
+          <select id="l-gender">
+            <option value="">선택</option>
+            <option>여성</option>
+            <option>남성</option>
+            <option>성별 불명</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-grid">
+        <div>
+          <div class="field-label">나이 <span class="req">*</span></div>
+          <input type="text" id="l-age" placeholder="예: 20살 (입학 연령: 20~24)">
+        </div>
+        <div>
+          <div class="field-label">외형 <span class="req">*</span></div>
+          <input type="text" id="l-appearance" placeholder="예: 흑발 / 청안 / 178cm / 슬림한 체형 / 단정한 인상">
+        </div>
+      </div>
+      <div class="field-grid">
+        <div>
+          <div class="field-label">학년 <span class="req">*</span></div>
+          <select id="l-year">
+            <option value="">선택</option>
+            <option>1학년</option>
+            <option>2학년</option>
+            <option>3학년</option>
+            <option>4학년</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">기숙사 배정 <span class="opt">(선택)</span></div>
+          <select id="l-dorm">
+            <option value="">질문지로 결정</option>
+            <option value="아도르 (ARDOR) — 전투·불꽃">아도르 (ARDOR) — 전투·불꽃</option>
+            <option value="베루스 (VERUS) — 지식·서책">베루스 (VERUS) — 지식·서책</option>
+            <option value="칼릭스 (CALIX) — 방어·방패">칼릭스 (CALIX) — 방어·방패</option>
+            <option value="녹티스 (NOCTIS) — 희귀·초승달">녹티스 (NOCTIS) — 희귀·초승달</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- 성격 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">성격</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="tag-group" id="s-personality-tags">
+          <span class="tag" onclick="toggleTag(this,'s-personality')">차분한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">침착한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">이성적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">냉정한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">신중한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">다정한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">상냥한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">온화한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">배려심 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">공감 잘하는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">밝은</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">낙천적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">활발한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">장난기 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">호기심 많은</span>
+
+          <span class="tag" onclick="toggleTag(this,'s-personality')">당돌한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">대담한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">책임감 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">독립적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">경쟁심 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">조용한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">내성적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">무뚝뚝한</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">고집 있는</span>
+          <span class="tag" onclick="toggleTag(this,'s-personality')">눈치 빠른</span>
+        </div>
+        <button class="tag-custom-btn" onclick="openCustom('s-personality-custom')">+ 기타 직접 추가</button>
+        <div class="custom-input-wrap" id="s-personality-custom">
+          <input type="text" placeholder="직접 입력" id="s-personality-custom-input">
+          <button class="custom-confirm-btn" onclick="addCustomTag('s-personality-custom-input','s-personality-tags','s-personality')">추가</button>
+        </div>
+        <div style="height:12px"></div>
+        <textarea id="s-personality-free" placeholder="자유롭게 입력하세요" rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- 말투 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">말투</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="tag-group" id="s-speech-tags">
+          <span class="tag" onclick="toggleTag(this,'s-speech')">존댓말</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">반존대</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">반말</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">또박또박한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">정중한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">직설적인</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">단답형</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">나긋한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">느릿한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">말수가 적은</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">친근한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">장난스러운</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">능글맞은</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">무심한</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">말끝을 흐리는</span>
+          <span class="tag" onclick="toggleTag(this,'s-speech')">돌려 말하는</span>
+        </div>
+        <button class="tag-custom-btn" onclick="openCustom('s-speech-custom')">+ 기타 직접 추가</button>
+        <div class="custom-input-wrap" id="s-speech-custom">
+          <input type="text" placeholder="직접 입력" id="s-speech-custom-input">
+          <button class="custom-confirm-btn" onclick="addCustomTag('s-speech-custom-input','s-speech-tags','s-speech')">추가</button>
+        </div>
+        <div style="height:12px"></div>
+        <textarea id="s-speech-free" placeholder="자유롭게 입력하세요" rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- 분위기 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">분위기</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="tag-group" id="l-personality-tags">
+          <span class="tag" onclick="toggleTag(this,'l-personality')">청량한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">햇살 같은</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">포근한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">따뜻한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">신비로운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">몽환적인</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">비밀스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">도회적인</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">세련된</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">고급스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">쿨한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">고독한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">거리감 있는</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">강인한</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">어른스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">카리스마 있는</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">귀여운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">사랑스러운</span>
+          <span class="tag" onclick="toggleTag(this,'l-personality')">장난스러운</span>
+        </div>
+        <button class="tag-custom-btn" onclick="openCustom('l-personality-custom')">+ 기타 직접 추가</button>
+        <div class="custom-input-wrap" id="l-personality-custom">
+          <input type="text" placeholder="직접 입력" id="l-personality-custom-input">
+          <button class="custom-confirm-btn" onclick="addCustomTag('l-personality-custom-input','l-personality-tags','l-personality')">추가</button>
+        </div>
+        <div style="height:12px"></div>
+        <textarea id="l-personality-free" placeholder="자유롭게 입력하세요" rows="2"></textarea>
+      </div>
+    </div>
+
+    <!-- 현지인 배경 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">배경</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <div class="field-grid">
+          <div>
+            <div class="field-label">출신 <span class="opt">(선택)</span></div>
+            <input type="text" id="l-origin" placeholder="예: 헌터 가문, 일반 시민">
+          </div>
+          <div>
+            <div class="field-label">입학 경위 <span class="opt">(선택)</span></div>
+            <select id="l-entry">
+              <option value="">선택</option>
+              <option>일반 선발</option>
+              <option>추천 입학</option>
+              <option>예외 입학 (특수)</option>
+              <option>조기 진급</option>
+            </select>
+          </div>
+        </div>
+        <div style="margin-top:12px">
+          <div class="field-label">배경 설명 <span class="opt">(선택)</span></div>
+          <textarea id="l-bg" placeholder="어떤 이유로 아카데미에 들어왔는지, 과거 사연 등" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 능력 -->
+    <div class="section">
+      <div class="section-head collapsible-head open" onclick="toggleSection(this)">
+        <span class="section-title">능력 선택</span>
+        <div style="display:flex;align-items:center;gap:10px">
+          <span class="section-badge optional">선택</span>
+          <span class="collapsible-arrow">▲</span>
+        </div>
+      </div>
+      <div class="collapsible-body open">
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">이 세계에서 각성할 능력을 선택하세요. 복수 선택 가능합니다. (선택과 플레이 흐름을 참고하여 능력 결정 및 자동 각성됩니다)</p>
+        <div class="ability-grid" id="s-ability-tags">
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">검술형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">원소형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">강화형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">감각형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">지원형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">정신계</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">소환형</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">특수계</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">AI 결정</span>
+          <span class="ability-tag" onclick="toggleTag(this,'s-ability')">없음</span>
+        </div>
+        <div style="margin-top:12px">
+          <div class="field-label">기타 능력 설명 <span class="opt">(선택)</span></div>
+          <textarea id="s-ability-free" placeholder="예: 빙결 계열 희망, 근접 전투 특화" rows="2"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- 플레이 가이드 (현지인) -->
+    <div class="section">
+      <div class="section-head">
+        <span class="section-title">플레이 가이드</span>
+        <span class="section-badge optional">선택</span>
+      </div>
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">플레이 방향과 편의 기능을 설정하세요.</p>
+
+      <div class="guide-row">
+        <div class="guide-label">플레이 방향</div>
+        <div class="radio-group">
+          <span class="radio-tag default-active" onclick="selectRadio(this,'l-dir','none')" data-val="none">선택 안 함</span>
+          <span class="radio-tag" onclick="selectRadio(this,'l-dir','multi')" data-val="multi">멀티 루트</span>
+          <span class="radio-tag" onclick="selectRadio(this,'l-dir','focus')" data-val="focus">1인 집중</span>
+        </div>
+        <div class="focus-select" id="l-focus-select">
+          <div class="focus-select-label" style="margin-top:12px">집중할 캐릭터를 선택하세요</div>
+          <div class="focus-grid">
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">세이른</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">케일런</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">제브</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">테론</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">알드릭</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">리벤</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">이드리스</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">키안</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">카이우스</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">사엘</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">콜린</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">실비</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">컬윈</span>
+            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">이든</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-row">
+        <div class="guide-label">이미지 모드</div>
+        <div class="guide-desc">19 상황 시 출력되는 H씬 종류를 강하게 제한합니다.</div>
+        <div class="radio-group">
+          <span class="radio-tag default-active" onclick="selectRadio(this,'l-img','none')" data-val="none">선택 안 함</span>
+          <span class="radio-tag" onclick="selectRadio(this,'l-img','HL')" data-val="HL">HL</span>
+          <span class="radio-tag" onclick="selectRadio(this,'l-img','BL')" data-val="BL">BL</span>
+        </div>
+      </div>
+
+      <div class="guide-label" style="margin-bottom:12px;">편의 기능</div>
+      <div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">사칭 금지 강화</div>
+            <div class="toggle-desc">GM이 USER의 대사·심리·행동을 대신 쓰지 않도록 강하게 제한합니다.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="l-tog1" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">묘사 강화</div>
+            <div class="toggle-desc">감각 묘사 밀도를 높이고, AI 특유의 문체와 감정 단어 직접 서술을 차단합니다.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="l-tog2" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">반복 차단 강화</div>
+            <div class="toggle-desc">이전과 같은 묘사·문장 구조·전개의 반복을 막고, 매 턴 새롭게 서술하도록 합니다.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="l-tog3" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="generate-wrap">
+      <button class="generate-btn" onclick="generateNote('local')">
+        <span>유저노트 만들기</span>
+        <span>→</span>
+      </button>
+    </div>
+
+    <div class="output-section" id="l-output">
+      <div class="output-head">
+        <span class="output-title">완성된 유저노트</span>
+        <button class="copy-btn" onclick="copyOutput('l-output-area')">복사하기</button>
+      </div>
+      <div class="output-area" id="l-output-area" contenteditable="true"></div>
+    </div>
+
+  </div><!-- /tab-local -->
+
+</div><!-- /container -->
+
+<footer class="footer">RADIX ACADEMY · USER NOTE MAKER</footer>
+
+<script>
+// ── TAB ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── COLLAPSIBLE ──
+function toggleSection(head) {
+  head.classList.toggle('open');
+  const body = head.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+// ── TAG ──
+function toggleTag(el, group) {
+  el.classList.toggle('active');
+}
+function toggleTagSingle(el, group) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.' + (el.classList.contains('tag') ? 'tag' : 'focus-tag')).forEach(t => {
+    if (t !== el) t.classList.remove('active');
+  });
+  el.classList.toggle('active');
+}
+
+// ── CUSTOM TAG ──
+function openCustom(id) {
+  const wrap = document.getElementById(id);
+  wrap.classList.toggle('open');
+}
+function addCustomTag(inputId, groupId, group) {
+  const input = document.getElementById(inputId);
+  const val = input.value.trim();
+  if (!val) return;
+  const group_el = document.getElementById(groupId);
+  const tag = document.createElement('span');
+  tag.className = 'tag active';
+  tag.textContent = val;
+  tag.onclick = function() { toggleTag(this, group); };
+  group_el.appendChild(tag);
+  input.value = '';
+}
+
+// ── RADIO ──
+const radioState = {};
+function selectRadio(el, group, val) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.radio-tag').forEach(t => {
+    t.classList.remove('active', 'default-active');
+  });
+  el.classList.add(val === 'none' ? 'default-active' : 'active');
+  radioState[group] = val;
+  // 1인 집중 선택 시 캐릭터 선택 표시
+  const prefix = group.split('-')[0];
+  const focusSel = document.getElementById(prefix + '-focus-select');
+  if (focusSel) {
+    focusSel.classList.toggle('open', val === 'focus');
+  }
+}
+
+// ── GET ACTIVE TAGS ──
+function getActiveTags(groupId) {
+  const wrap = document.getElementById(groupId);
+  if (!wrap) return [];
+  return Array.from(wrap.querySelectorAll('.tag.active, .ability-tag.active')).map(t => t.textContent.trim());
+}
+function getActiveFocusTags(groupId) {
+  const wrap = document.getElementById(groupId);
+  if (!wrap) return [];
+  return Array.from(wrap.querySelectorAll('.focus-tag.active')).map(t => t.textContent.trim());
+}
+function getSingleTag(groupId) {
+  const wrap = document.getElementById(groupId);
+  if (!wrap) return '';
+  const active = wrap.querySelector('.tag.active');
+  return active ? active.textContent.trim() : '';
+}
+
+// ── GENERATE ──
+function generateNote(type) {
+  const p = type === 'stranger' ? 's' : 'l';
+
+  const name = document.getElementById(p+'-name').value.trim() || '(미입력)';
+  const gender = document.getElementById(p+'-gender').value || '(미입력)';
+  const age = document.getElementById(p+'-age').value.trim() || '(미입력)';
+  const appearance = document.getElementById(p+'-appearance').value.trim() || '(미입력)';
+  const dorm = document.getElementById(p+'-dorm').value || '질문지로 결정';
+  const year = document.getElementById(p+'-year')?.value || '';
+
+  const personality = getActiveTags(p+'-personality-tags');
+  const personalityFree = document.getElementById(p+'-personality-free').value.trim();
+  const speech = getActiveTags(p+'-speech-tags');
+  const speechFree = document.getElementById(p+'-speech-free').value.trim();
+  const ability = getActiveTags(p+'-ability-tags');
+  const abilityFree = document.getElementById(p+'-ability-free').value.trim();
+
+  const dir = radioState[p+'-dir'] || 'none';
+  const img = radioState[p+'-img'] || 'none';
+  const focus = getActiveFocusTags(p+'-focus-select');
+  const tog1 = document.getElementById(p+'-tog1').checked;
+  const tog2 = document.getElementById(p+'-tog2').checked;
+  const tog3 = document.getElementById(p+'-tog3').checked;
+
+  let lines = [];
+  lines.push('## USER INFO');
+  lines.push('');
+  lines.push(`이름: ${name}`);
+  lines.push(`성별: ${gender}`);
+  lines.push(`나이: ${age}`);
+  lines.push(`외형: ${appearance}`);
+  if (year) lines.push(`학년: ${year}`);
+  lines.push(`기숙사: ${dorm}`);
+
+  if (type === 'stranger') {
+    const world = document.getElementById('s-world').value.trim();
+    const job = document.getElementById('s-job').value.trim();
+    const awareness = getSingleTag('s-awareness-tags');
+    const lastmemory = document.getElementById('s-lastmemory').value.trim();
+    const skill = document.getElementById('s-skill').value.trim();
+    lines.push('');
+    lines.push('## 이전 삶 배경');
+    lines.push('');
+    if (world) lines.push(`이전 세계: ${world}`);
+    if (job) lines.push(`직업/신분: ${job}`);
+    if (awareness) lines.push(`인지 수준: ${awareness}`);
+    if (lastmemory) lines.push(`마지막 기억: ${lastmemory}`);
+    if (skill) lines.push(`가져온 것: ${skill}`);
+  } else {
+    const origin = document.getElementById('l-origin').value.trim();
+    const entry = document.getElementById('l-entry').value;
+    const bg = document.getElementById('l-bg').value.trim();
+    if (origin || entry || bg) {
+      lines.push('');
+      lines.push('## 배경');
+      lines.push('');
+      if (origin) lines.push(`출신: ${origin}`);
+      if (entry) lines.push(`입학 경위: ${entry}`);
+      if (bg) lines.push(`배경: ${bg}`);
+    }
+  }
+
+  if (personality.length || personalityFree) {
+    lines.push('');
+    lines.push('## 성격');
+    lines.push('');
+    if (personality.length) lines.push(personality.join(' / '));
+    if (personalityFree) lines.push(personalityFree);
+  }
+
+  if (speech.length || speechFree) {
+    lines.push('');
+    lines.push('## 말투');
+    lines.push('');
+    if (speech.length) lines.push(speech.join(' / '));
+    if (speechFree) lines.push(speechFree);
+  }
+
+  if (ability.length || abilityFree) {
+    lines.push('');
+    lines.push('## 능력');
+    lines.push('');
+    if (ability.length) lines.push(ability.join(' / '));
+    if (abilityFree) lines.push(abilityFree);
+  }
+
+  // Play guide
+  const hasGuide = dir !== 'none' || img !== 'none' || tog1 || tog2 || tog3;
+  if (hasGuide) {
+    lines.push('');
+    lines.push('## 플레이 가이드');
+    lines.push('');
+
+    if (dir !== 'none') {
+      if (dir === 'multi') lines.push('[Dir: Multi Route]');
+      if (dir === 'focus') {
+        const fc = focus.length ? focus.join(', ') : '(미선택)';
+        lines.push(`[Dir: 1인 집중 — ${fc}]`);
+      }
+    }
+
+    if (img === 'HL') lines.push('[IMG: HL Mode]');
+    if (img === 'BL') lines.push('[IMG: BL Mode]');
+
+    const toggles = [];
+    if (tog1) toggles.push('[Strict No-Impersonation]\nNever write USER\'s dialogue, inner thoughts, emotions, physical reactions, or decisions. Never assume USER\'s intent or speak for USER. Output only NPC actions and environment; leave all USER agency to the user. If unsure, stop before USER\'s line rather than filling it.');
+    if (tog2) toggles.push('[Enhanced Description]\nKeep response length the same; raise sensory density only (sight/sound/touch/smell, space, light, texture, NPC body language).\nBan AI-tell contrastive phrasing. Forbidden patterns: "A가 아니라 B였다", "A — 아니, B였다", "단지 A가 아니었다. B였다", "A라기보다 B에 가까웠다".\nNever name 소유욕/질투/통제욕 directly. Surface only through outward behavior.');
+    if (tog3) toggles.push('[Anti-Repetition]\nEvery turn must be freshly written. Never reuse prior descriptions, sentence structures, dialogue beats, or scene developments. Vary word choice, imagery, and rhythm each turn.');
+    if (toggles.length) {
+      lines.push('');
+      lines.push(toggles.join('\n\n'));
+    }
+  }
+
+  const output = lines.join('\n');
+  const el = document.getElementById(p+'-output-area');
+  el.textContent = output;
+  const sec = document.getElementById(p+'-output');
+  sec.classList.add('open');
+  sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ── COPY ──
+function copyOutput(id) {
+  const el = document.getElementById(id);
+  const text = el.textContent || el.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = el.previousElementSibling?.querySelector('.copy-btn') ||
+                el.parentElement.querySelector('.copy-btn');
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = '복사됨 ✓';
+      setTimeout(() => btn.textContent = orig, 1500);
+    }
+  });
+}
+</script>
+</body>
+</html>
