@@ -77,6 +77,12 @@
     color: var(--text-muted);
     letter-spacing: 0.05em;
   }
+  .header-desc {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    letter-spacing: 0.02em;
+  }
 
   /* TAB */
   .tab-wrap {
@@ -531,9 +537,10 @@
 <body>
 
 <header class="header">
-  <div class="header-eyebrow">RADIX ACADEMY · USER NOTE MAKER</div>
-  <h1 class="header-title">유저노트 <em>도우미</em></h1>
-  <p class="header-sub">당신의 캐릭터를 설정하세요</p>
+  <div class="header-eyebrow">RADIX ACADEMY · CHARACTER SETUP</div>
+  <h1 class="header-title">내 캐릭터 <em>만들기</em></h1>
+  <p class="header-sub">당신이 될 인물을 설정하세요</p>
+  <p class="header-desc">완성된 설정은 복사해서 AI에 붙여넣으면 바로 사용할 수 있습니다</p>
 </header>
 
 <div class="tab-wrap">
@@ -545,6 +552,8 @@
 
   <!-- ===================== 환생 · 빙의 탭 ===================== -->
   <div id="tab-stranger" class="tab-content active">
+
+    <p style="font-size:12px;color:var(--text-dim);text-align:center;padding:20px 0 8px;letter-spacing:0.03em;">공란 가능. 필요한 내용만 작성하여 사용하셔도 됩니다.</p>
 
     <!-- 기본 정보 -->
     <div class="section">
@@ -810,41 +819,62 @@
       </div>
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">플레이 방향과 편의 기능을 설정하세요. 모두 선택 사항입니다.</p>
 
+      <!-- 공략 캐릭터 -->
       <div class="guide-row">
-        <div class="guide-label">플레이 방향</div>
-        <div class="radio-group">
-          <span class="radio-tag default-active" onclick="selectRadio(this,'s-dir','none')" data-val="none">선택 안 함</span>
-          <span class="radio-tag" onclick="selectRadio(this,'s-dir','multi')" data-val="multi">멀티 루트</span>
-          <span class="radio-tag" onclick="selectRadio(this,'s-dir','focus')" data-val="focus">1인 집중</span>
-        </div>
-        <div class="focus-select" id="s-focus-select">
-          <div class="focus-select-label" style="margin-top:12px">집중할 캐릭터를 선택하세요</div>
-          <div class="focus-grid">
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">세이른</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">케일런</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">제브</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">테론</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">알드릭</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">리벤</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">이드리스</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">키안</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">카이우스</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">사엘</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">콜린</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">실비</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">컬윈</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'s-focus')">이든</span>
-          </div>
+        <div class="guide-label">공략 캐릭터</div>
+        <div class="guide-desc">집중하고 싶은 캐릭터를 선택하세요. 복수 선택 가능합니다.</div>
+        <div class="focus-grid" id="s-focus-tags">
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">세이른</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">케일런</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">제브</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">테론</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">알드릭</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">리벤</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">이드리스</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">키안</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">카이우스</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">사엘</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">콜린</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">실비</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">컬윈</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">이든</span>
         </div>
       </div>
 
+      <!-- 플레이 목표 -->
       <div class="guide-row">
-        <div class="guide-label">이미지 모드</div>
-        <div class="guide-desc">19 상황 시 출력되는 H씬 종류를 강하게 제한합니다.</div>
-        <div class="radio-group">
-          <span class="radio-tag default-active" onclick="selectRadio(this,'s-img','none')" data-val="none">선택 안 함</span>
-          <span class="radio-tag" onclick="selectRadio(this,'s-img','HL')" data-val="HL">HL</span>
-          <span class="radio-tag" onclick="selectRadio(this,'s-img','BL')" data-val="BL">BL</span>
+        <div class="guide-label">플레이 목표</div>
+        <div class="guide-desc">이번 플레이에서 이루고 싶은 것을 선택하세요. 복수 선택 가능합니다.</div>
+        <div class="tag-group" id="s-goal-tags">
+          <span class="tag" onclick="toggleTag(this,'s-goal')">연애</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">빠른 성장</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">4년 장학생</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">수석 졸업</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">랭크 상승</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">서열 1위</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">생존</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">비밀 유지</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">세계 이해</span>
+          <span class="tag" onclick="toggleTag(this,'s-goal')">자유 진행</span>
+        </div>
+        <textarea id="s-goal-free" placeholder="그 외 목표를 자유롭게 입력하세요" rows="2" style="margin-top:8px"></textarea>
+      </div>
+
+      <!-- 선호 관계성 -->
+      <div class="guide-row">
+        <div class="guide-label">선호 관계성</div>
+        <div class="guide-desc">원하는 감정선과 관계 방식을 선택하세요. 복수 선택 가능합니다.</div>
+        <div class="tag-group" id="s-rel-tags">
+          <span class="tag" onclick="toggleTag(this,'s-rel')">라이벌</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">멘토</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">청춘 성장</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">힐링</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">친구→연인</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">동료 중심</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">학원 일상</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">느린 감정선</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">팀 플레이</span>
+          <span class="tag" onclick="toggleTag(this,'s-rel')">자유 진행</span>
         </div>
       </div>
 
@@ -853,7 +883,7 @@
         <div class="toggle-item">
           <div class="toggle-info">
             <div class="toggle-name">사칭 금지 강화</div>
-            <div class="toggle-desc">GM이 USER의 대사·심리·행동을 대신 쓰지 않도록 강하게 제한합니다.</div>
+            <div class="toggle-desc">AI가 USER의 대사·심리·행동을 대신 쓰지 않도록 강하게 제한합니다.</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="s-tog1" checked>
@@ -880,19 +910,39 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">상태 누적 유지</div>
+            <div class="toggle-desc">상태창·관계·능력·피로·위험도·진행 이벤트를 매 턴 누적 유지합니다. 초기화 금지, 이전 턴 결과 우선 반영.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="s-tog4" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">작품 톤 유지</div>
+            <div class="toggle-desc">잔잔한 청춘 헌터물 기조 유지. 생활감·반복 접촉·미묘한 감정선 중심. 편안함·설렘·점진적 변화 우선. 과도한 갈등·피폐·집착·관계 붕괴 억제.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="s-tog5" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
 
     <div class="generate-wrap">
       <button class="generate-btn" onclick="generateNote('stranger')">
-        <span>유저노트 만들기</span>
+        <span>설정 완성하기</span>
         <span>→</span>
       </button>
     </div>
 
     <div class="output-section" id="s-output">
       <div class="output-head">
-        <span class="output-title">완성된 유저노트</span>
+        <span class="output-title">완성된 캐릭터 설정</span>
         <button class="copy-btn" onclick="copyOutput('s-output-area')">복사하기</button>
       </div>
       <div class="output-area" id="s-output-area" contenteditable="true"></div>
@@ -902,6 +952,8 @@
 
   <!-- ===================== 현지인 탭 ===================== -->
   <div id="tab-local" class="tab-content">
+
+    <p style="font-size:12px;color:var(--text-dim);text-align:center;padding:20px 0 8px;letter-spacing:0.03em;">공란 가능. 필요한 내용만 작성하여 사용하셔도 됩니다.</p>
 
     <!-- 기본 정보 -->
     <div class="section">
@@ -1156,41 +1208,62 @@
       </div>
       <p style="font-size:12px;color:var(--text-muted);margin-bottom:20px;">플레이 방향과 편의 기능을 설정하세요.</p>
 
+      <!-- 공략 캐릭터 -->
       <div class="guide-row">
-        <div class="guide-label">플레이 방향</div>
-        <div class="radio-group">
-          <span class="radio-tag default-active" onclick="selectRadio(this,'l-dir','none')" data-val="none">선택 안 함</span>
-          <span class="radio-tag" onclick="selectRadio(this,'l-dir','multi')" data-val="multi">멀티 루트</span>
-          <span class="radio-tag" onclick="selectRadio(this,'l-dir','focus')" data-val="focus">1인 집중</span>
-        </div>
-        <div class="focus-select" id="l-focus-select">
-          <div class="focus-select-label" style="margin-top:12px">집중할 캐릭터를 선택하세요</div>
-          <div class="focus-grid">
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">세이른</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">케일런</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">제브</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">테론</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">알드릭</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">리벤</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">이드리스</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">키안</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">카이우스</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">사엘</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">콜린</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">실비</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">컬윈</span>
-            <span class="focus-tag" onclick="toggleTagSingle(this,'l-focus')">이든</span>
-          </div>
+        <div class="guide-label">공략 캐릭터</div>
+        <div class="guide-desc">집중하고 싶은 캐릭터를 선택하세요. 복수 선택 가능합니다.</div>
+        <div class="focus-grid" id="l-focus-tags">
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">세이른</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">케일런</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">제브</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">테론</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">알드릭</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">리벤</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">이드리스</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">키안</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">카이우스</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">사엘</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">콜린</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">실비</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">컬윈</span>
+          <span class="focus-tag" onclick="toggleMultiFocus(this)">이든</span>
         </div>
       </div>
 
+      <!-- 플레이 목표 -->
       <div class="guide-row">
-        <div class="guide-label">이미지 모드</div>
-        <div class="guide-desc">19 상황 시 출력되는 H씬 종류를 강하게 제한합니다.</div>
-        <div class="radio-group">
-          <span class="radio-tag default-active" onclick="selectRadio(this,'l-img','none')" data-val="none">선택 안 함</span>
-          <span class="radio-tag" onclick="selectRadio(this,'l-img','HL')" data-val="HL">HL</span>
-          <span class="radio-tag" onclick="selectRadio(this,'l-img','BL')" data-val="BL">BL</span>
+        <div class="guide-label">플레이 목표</div>
+        <div class="guide-desc">이번 플레이에서 이루고 싶은 것을 선택하세요. 복수 선택 가능합니다.</div>
+        <div class="tag-group" id="l-goal-tags">
+          <span class="tag" onclick="toggleTag(this,'l-goal')">연애</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">빠른 성장</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">4년 장학생</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">수석 졸업</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">랭크 상승</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">서열 1위</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">생존</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">비밀 유지</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">세계 이해</span>
+          <span class="tag" onclick="toggleTag(this,'l-goal')">자유 진행</span>
+        </div>
+        <textarea id="l-goal-free" placeholder="그 외 목표를 자유롭게 입력하세요" rows="2" style="margin-top:8px"></textarea>
+      </div>
+
+      <!-- 선호 관계성 -->
+      <div class="guide-row">
+        <div class="guide-label">선호 관계성</div>
+        <div class="guide-desc">원하는 감정선과 관계 방식을 선택하세요. 복수 선택 가능합니다.</div>
+        <div class="tag-group" id="l-rel-tags">
+          <span class="tag" onclick="toggleTag(this,'l-rel')">라이벌</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">멘토</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">청춘 성장</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">힐링</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">친구→연인</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">동료 중심</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">학원 일상</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">느린 감정선</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">팀 플레이</span>
+          <span class="tag" onclick="toggleTag(this,'l-rel')">자유 진행</span>
         </div>
       </div>
 
@@ -1199,7 +1272,7 @@
         <div class="toggle-item">
           <div class="toggle-info">
             <div class="toggle-name">사칭 금지 강화</div>
-            <div class="toggle-desc">GM이 USER의 대사·심리·행동을 대신 쓰지 않도록 강하게 제한합니다.</div>
+            <div class="toggle-desc">AI가 USER의 대사·심리·행동을 대신 쓰지 않도록 강하게 제한합니다.</div>
           </div>
           <label class="toggle-switch">
             <input type="checkbox" id="l-tog1" checked>
@@ -1226,19 +1299,39 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">상태 누적 유지</div>
+            <div class="toggle-desc">상태창·관계·능력·피로·위험도·진행 이벤트를 매 턴 누적 유지합니다. 초기화 금지, 이전 턴 결과 우선 반영.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="l-tog4" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="toggle-item">
+          <div class="toggle-info">
+            <div class="toggle-name">작품 톤 유지</div>
+            <div class="toggle-desc">잔잔한 청춘 헌터물 기조 유지. 생활감·반복 접촉·미묘한 감정선 중심. 편안함·설렘·점진적 변화 우선. 과도한 갈등·피폐·집착·관계 붕괴 억제.</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="l-tog5" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
       </div>
     </div>
 
     <div class="generate-wrap">
       <button class="generate-btn" onclick="generateNote('local')">
-        <span>유저노트 만들기</span>
+        <span>설정 완성하기</span>
         <span>→</span>
       </button>
     </div>
 
     <div class="output-section" id="l-output">
       <div class="output-head">
-        <span class="output-title">완성된 유저노트</span>
+        <span class="output-title">완성된 캐릭터 설정</span>
         <button class="copy-btn" onclick="copyOutput('l-output-area')">복사하기</button>
       </div>
       <div class="output-area" id="l-output-area" contenteditable="true"></div>
@@ -1248,7 +1341,7 @@
 
 </div><!-- /container -->
 
-<footer class="footer">RADIX ACADEMY · USER NOTE MAKER</footer>
+<footer class="footer">RADIX ACADEMY · CHARACTER SETUP</footer>
 
 <script>
 // ── TAB ──
@@ -1266,15 +1359,22 @@ function toggleSection(head) {
   body.classList.toggle('open');
 }
 
-// ── TAG ──
+// ── TAG (멀티) ──
 function toggleTag(el, group) {
   el.classList.toggle('active');
 }
+
+// ── TAG (싱글) ──
 function toggleTagSingle(el, group) {
   const parent = el.parentElement;
   parent.querySelectorAll('.' + (el.classList.contains('tag') ? 'tag' : 'focus-tag')).forEach(t => {
     if (t !== el) t.classList.remove('active');
   });
+  el.classList.toggle('active');
+}
+
+// ── FOCUS TAG (멀티 선택) ──
+function toggleMultiFocus(el) {
   el.classList.toggle('active');
 }
 
@@ -1305,12 +1405,6 @@ function selectRadio(el, group, val) {
   });
   el.classList.add(val === 'none' ? 'default-active' : 'active');
   radioState[group] = val;
-  // 1인 집중 선택 시 캐릭터 선택 표시
-  const prefix = group.split('-')[0];
-  const focusSel = document.getElementById(prefix + '-focus-select');
-  if (focusSel) {
-    focusSel.classList.toggle('open', val === 'focus');
-  }
 }
 
 // ── GET ACTIVE TAGS ──
@@ -1338,23 +1432,28 @@ function generateNote(type) {
   const name = document.getElementById(p+'-name').value.trim() || '(미입력)';
   const gender = document.getElementById(p+'-gender').value || '(미입력)';
   const age = document.getElementById(p+'-age').value.trim() || '(미입력)';
-  const appearance = document.getElementById(p+'-appearance').value.trim() || '(미입력)';
+  const appearance = document.getElementById(p+'-appearance')?.value.trim() || '(미입력)';
   const dorm = document.getElementById(p+'-dorm').value || '질문지로 결정';
   const year = document.getElementById(p+'-year')?.value || '';
 
   const personality = getActiveTags(p+'-personality-tags');
-  const personalityFree = document.getElementById(p+'-personality-free').value.trim();
+  const personalityFree = document.getElementById(p+'-personality-free')?.value.trim() || '';
   const speech = getActiveTags(p+'-speech-tags');
-  const speechFree = document.getElementById(p+'-speech-free').value.trim();
+  const speechFree = document.getElementById(p+'-speech-free')?.value.trim() || '';
   const ability = getActiveTags(p+'-ability-tags');
-  const abilityFree = document.getElementById(p+'-ability-free').value.trim();
+  const abilityFree = document.getElementById(p+'-ability-free')?.value.trim() || '';
 
-  const dir = radioState[p+'-dir'] || 'none';
-  const img = radioState[p+'-img'] || 'none';
-  const focus = getActiveFocusTags(p+'-focus-select');
+  // 플레이 가이드
+  const focus = getActiveFocusTags(p+'-focus-tags');
+  const goal = getActiveTags(p+'-goal-tags');
+  const goalFree = document.getElementById(p+'-goal-free')?.value.trim() || '';
+  const rel = getActiveTags(p+'-rel-tags');
+  const img = 'none';
   const tog1 = document.getElementById(p+'-tog1').checked;
   const tog2 = document.getElementById(p+'-tog2').checked;
   const tog3 = document.getElementById(p+'-tog3').checked;
+  const tog4 = document.getElementById(p+'-tog4').checked;
+  const tog5 = document.getElementById(p+'-tog5').checked;
 
   let lines = [];
   lines.push('## USER INFO');
@@ -1418,28 +1517,27 @@ function generateNote(type) {
     if (abilityFree) lines.push(abilityFree);
   }
 
-  // Play guide
-  const hasGuide = dir !== 'none' || img !== 'none' || tog1 || tog2 || tog3;
+  // 플레이 가이드
+  const hasGuide = focus.length || goal.length || goalFree || rel.length || tog1 || tog2 || tog3 || tog4 || tog5;
   if (hasGuide) {
     lines.push('');
     lines.push('## 플레이 가이드');
     lines.push('');
 
-    if (dir !== 'none') {
-      if (dir === 'multi') lines.push('[Dir: Multi Route]');
-      if (dir === 'focus') {
-        const fc = focus.length ? focus.join(', ') : '(미선택)';
-        lines.push(`[Dir: 1인 집중 — ${fc}]`);
-      }
+    if (focus.length) lines.push(`공략 캐릭터: ${focus.join(', ')}`);
+    if (goal.length || goalFree) {
+      const goalAll = [...goal];
+      if (goalFree) goalAll.push(goalFree);
+      lines.push(`플레이 목표: ${goalAll.join(' / ')}`);
     }
-
-    if (img === 'HL') lines.push('[IMG: HL Mode]');
-    if (img === 'BL') lines.push('[IMG: BL Mode]');
+    if (rel.length) lines.push(`선호 관계성: ${rel.join(' / ')}`);
 
     const toggles = [];
     if (tog1) toggles.push('[Strict No-Impersonation]\nNever write USER\'s dialogue, inner thoughts, emotions, physical reactions, or decisions. Never assume USER\'s intent or speak for USER. Output only NPC actions and environment; leave all USER agency to the user. If unsure, stop before USER\'s line rather than filling it.');
     if (tog2) toggles.push('[Enhanced Description]\nKeep response length the same; raise sensory density only (sight/sound/touch/smell, space, light, texture, NPC body language).\nBan AI-tell contrastive phrasing. Forbidden patterns: "A가 아니라 B였다", "A — 아니, B였다", "단지 A가 아니었다. B였다", "A라기보다 B에 가까웠다".\nNever name 소유욕/질투/통제욕 directly. Surface only through outward behavior.');
     if (tog3) toggles.push('[Anti-Repetition]\nEvery turn must be freshly written. Never reuse prior descriptions, sentence structures, dialogue beats, or scene developments. Vary word choice, imagery, and rhythm each turn.');
+    if (tog4) toggles.push('[State Persistence]\n상태창·관계·능력·피로·위험도·진행이벤트 항상 누적 유지. 초기화 금지. 이전 턴 결과 우선 반영.');
+    if (tog5) toggles.push('[Tone Lock]\n현재 작품 톤=잔잔한 청춘 헌터물. 생활감·반복 접촉·미묘한 감정선 중심. 관계=편안함·설렘·점진적 변화 우선. 과도한 갈등·피폐·집착·관계 붕괴 전개 억제.');
     if (toggles.length) {
       lines.push('');
       lines.push(toggles.join('\n\n'));
